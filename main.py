@@ -165,7 +165,6 @@ def draw():
                     r = Rect((x * pocet_pixelu, y * pocet_pixelu), (pocet_pixelu, pocet_pixelu))
                     screen.draw.filled_rect(r, (0x00, 0x00, 0x00))
                 if had == 1:
-                    print("kreslim hada", x, y)
                     r = Rect((x * pocet_pixelu, y * pocet_pixelu), (pocet_pixelu, pocet_pixelu))
                     screen.draw.filled_rect(r, (0xff, 0xff, 0x00))
                 if had == 2:
