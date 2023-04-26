@@ -16,7 +16,6 @@ point_collected = False
 spawned = False
 konec = False
 escaped = True
-started = False
 souradky_pointu = [0, 0]
 for y in range(vyska):
     radek = []
@@ -131,6 +130,8 @@ def on_key_down(key):
     if escaped:
         if key == 32:
             escaped = False
+            point_spawn()
+            clock.schedule_interval(pohyb, 0.5)
     if not escaped:
         if key == 119 or key == keys.UP:
             if can_move(hlava_hada[0] - 1, hlava_hada[1], "smer"):
@@ -150,6 +151,7 @@ def on_key_down(key):
                 smer[1] = -1
         if key == keys.ESCAPE:
             escaped = True
+            clock.unschedule(pohyb)
 
 
 #def update():
@@ -172,9 +174,5 @@ def draw():
                     screen.draw.filled_rect(r, (0xfe, 0x01, 0x9a))
     if escaped:
         screen.draw.text("PRESS SPACE", ((sirka / 2 - 7) * pocet_pixelu, (vyska / 2 - 2) * pocet_pixelu), color="white", fontsize=30/10 * pocet_pixelu)
-    if not escaped:
-        if not started:
-            point_spawn()
-            clock.schedule_interval(pohyb, 0.5)
-            started = True
+
 pgzrun.go()
