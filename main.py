@@ -85,7 +85,7 @@ def pohyb():
                 konec_hry()
                 clock.unschedule(pohyb)
     else:
-        for x in range(nacteno):
+        try:
             misto = cesta.pop()
             had_souradnice.append(misto)
             if not point_collected:
@@ -94,11 +94,11 @@ def pohyb():
             point_collected = False
             for had in range(velikost_hada):
                 pole[had_souradnice[had][0]][had_souradnice[had][1]][0] = 1
-            if hlava_hada == souradky_pointu:
-                point_collected = True
-                spawned = False
-                velikost_hada += 1
-                point_spawn()
+        except IndexError:
+            point_collected = True
+            spawned = False
+            velikost_hada += 1
+            point_spawn()
 
 def can_move(y, x, kdo):
     if y < 0 or x < 0:
@@ -157,68 +157,147 @@ def point_spawn():
 def hledani_cesty():
     global cesta, nacteno
     breakout = True
+    na_hlave = False
     doba_trvani = 0
     nacteno = 0
-    print("here")
+    scitani = 0
     neighbours = collections.deque()
     while breakout:
-        print("sem ano")
         if doba_trvani == 0:
             doba_trvani = 1
-            print("jsem zde")
             for y in range(2):
                 for x in range(2):
-                    if pole[hlava_hada[0] + y * 2 - 1][hlava_hada[1] + x * 2 - 1][0] != 1:
-                        pole[hlava_hada[0] + y * 2 - 1][hlava_hada[1] + x * 2 - 1][1] = 1
-                        soused = [hlava_hada[0] + y * 2 - 1, hlava_hada[1] + x * 2 - 1]
-                        neighbours.append(soused)
-                    if hlava_hada[0] + y * 2 - 1 == souradky_pointu[0] and hlava_hada[1] + x * 2 - 1 == souradky_pointu:
-                        poradi = pole[hlava_hada[0]][hlava_hada[1]][1] + 1
-                        pole[hlava_hada[0] + y * 2 - 1][hlava_hada[1] + x * 2 - 1][1] = poradi
-                        breakout = True
-                if breakout:
+                    if y == 0:
+                        if hlava_hada[0] == souradky_pointu[0] and hlava_hada[1] + x * 2 - 1 == souradky_pointu[1]:
+                            poradi = pole[hlava_hada[0]][hlava_hada[1]][1] + 1
+                            pole[hlava_hada[0]][hlava_hada[1] + x * 2 - 1][1] = poradi
+                            breakout = False
+                        try:
+                            if pole[hlava_hada[0]][hlava_hada[1] + x * 2 - 1][1] == 0:
+                                pole[hlava_hada[0]][hlava_hada[1] + x * 2 - 1][1] = 1
+                                soused = [hlava_hada[0], hlava_hada[1] + x * 2 - 1]
+                                neighbours.append(soused)
+                        except IndexError:
+                            continue
+                    if y == 1:
+                        if hlava_hada[0] + x * 2 - 1 == souradky_pointu[0] and hlava_hada[1] == souradky_pointu[1]:
+                            poradi = pole[hlava_hada[0]][hlava_hada[1]][1] + 1
+                            pole[hlava_hada[0] + x * 2 - 1][hlava_hada[1]][1] = poradi
+                            breakout = False
+                        try:
+                            if pole[hlava_hada[0] + x * 2 - 1][hlava_hada[1]][1] == 0:
+                                pole[hlava_hada[0] + x * 2 - 1][hlava_hada[1]][1] = 1
+                                soused = [hlava_hada[0] + x * 2 - 1, hlava_hada[1]]
+                                neighbours.append(soused)
+                        except IndexError:
+                            continue
+                if not breakout:
                     break
-            if breakout:
-                print("ahoj")
+            if not breakout:
                 break
         else:
-            pozice = neighbours.popleft
+            pozice = neighbours.popleft()
             for y in range(2):
                 for x in range(2):
-                    if pozice[0] + y * 2 - 1 == souradky_pointu[0] and pozice[1] + x * 2 - 1 == souradky_pointu:
-                        poradi = pole[pozice[0]][pozice[1]][1] + 1
-                        pole[pozice[0] + y * 2 - 1][pozice[1] + x * 2 - 1][1] = poradi
-                        breakout = False
-                    if pole[pozice[0] + y * 2 - 1][pozice[1] + x * 2 - 1][0] != 0 and pole[pozice[0] + y * 2 - 1][pozice[1] + x * 2 - 1][0] == 0:
-                        poradi = pole[pozice[0]][pozice[1]][1] + 1
-                        pole[pozice[0] + y * 2 - 1][pozice[1] + x * 2 - 1][1] = poradi
-                        soused = [pozice[0] + y * 2 - 1, pozice[1] + x * 2 - 1]
-                        neighbours.append(soused)
-                if breakout:
+                    if y == 0:
+                        try:
+                            if pole[pozice[0]][pozice[1] + x * 2 - 1][0] == 2:
+                                poradi = pole[pozice[0]][pozice[1]][1] + 1
+                                pole[pozice[0]][pozice[1] + x * 2 - 1][1] = poradi
+                                breakout = False
+                                break
+                            if pole[pozice[0]][pozice[1] + x * 2 - 1][1] == 0:
+                                poradi = pole[pozice[0]][pozice[1]][1] + 1
+                                pole[pozice[0]][pozice[1] + x * 2 - 1][1] = poradi
+                                soused = [pozice[0], pozice[1] + x * 2 - 1]
+                                neighbours.append(soused)
+                        except IndexError:
+                            continue
+                    if y == 1:
+                        try:
+                            if pole[pozice[0] + x * 2 - 1][pozice[1]][0] == 2:
+                                poradi = pole[pozice[0]][pozice[1]][1] + 1
+                                pole[pozice[0] + x * 2 - 1][pozice[1]][1] = poradi
+                                breakout = False
+                                break
+                            if pole[pozice[0] + x * 2 - 1][pozice[1]][1] == 0:
+                                poradi = pole[pozice[0]][pozice[1]][1] + 1
+                                pole[pozice[0] + x * 2 - 1][pozice[1]][1] = poradi
+                                soused = [pozice[0] + x * 2 - 1, pozice[1]]
+                                neighbours.append(soused)
+                        except IndexError:
+                            continue
+                if not breakout:
                     break
-            if breakout:
-                print("ahoj po druhy")
+            if not breakout:
                 break
 
-    for y in range(2):
-        for x in range(2):
-            if pole[souradky_pointu[0]][souradky_pointu[1]][0] != 0:
-                if pole[souradky_pointu[0] + y * 2 - 1][souradky_pointu[1] + x * 2 - 1][1] == pole[souradky_pointu[0]][souradky_pointu[1]][1] - 1:
-                    pozice = [souradky_pointu[0] + y * 2 - 1, souradky_pointu[1] + x * 2 - 1]
-                    cesta = collections.deque()
-                    cesta.append(pozice)
-            else:
-                pozice = neighbours[nacteno]
-                if pole[pozice[0] + y * 2 - 1][pozice[1] + x * 2 - 1][1] == pole[pozice[0]][pozice[1]][1]:
-                    pozice = [pozice[0] + y * 2 - 1, pozice[1] + x * 2 - 1]
-                    nacteno += 1
-                    cesta.append(pozice)
+    while not na_hlave:
+        scitani += 1
+        if scitani == vyska * sirka:
+            na_hlave = True
+        for y in range(2):
+            for x in range(2):
+                if y == 0:
+                    if pole[souradky_pointu[0]][souradky_pointu[1]][1] != 0:
+                        if pole[souradky_pointu[0]][souradky_pointu[1] + x * 2 - 1][1] == pole[souradky_pointu[0]][souradky_pointu[1]][1] - 1:
+                            pozice = [souradky_pointu[0], souradky_pointu[1] + x * 2 - 1]
+                            pole[souradky_pointu[0]][souradky_pointu[1]][1] = 0
+                            cesta = collections.deque()
+                            nacteno += 1
+                            cesta.append(pozice)
+                    else:
+                        pozice = cesta.pop()
+                        if pole[pozice[0]][pozice[1] + x * 2 - 1][1] == pole[pozice[0]][pozice[1]][1] - 1:
+                            cesta.append(pozice)
+                            pole[pozice[0]][pozice[1]][1] = 0
+                            pozice = [pozice[0], pozice[1] + x * 2 - 1]
+                            nacteno += 1
+                        cesta.append(pozice)
+                    try:
+                        pozice = cesta.pop()
+                        if pozice[0] == hlava_hada[0] and pozice[1] + x * 2 - 1 == hlava_hada[1]:
+                            na_hlave = True
+                            cesta.append(pozice)
+                            break
+                        cesta.append(pozice)
+                    except IndexError:
+                        continue
+                if y == 1:
+                    if pole[souradky_pointu[0]][souradky_pointu[1]][1] != 0:
+                        if pole[souradky_pointu[0] + x * 2 - 1][souradky_pointu[1]][1] == pole[souradky_pointu[0]][souradky_pointu[1]][1] - 1:
+                            pozice = [souradky_pointu[0] + x * 2 - 1, souradky_pointu[1]]
+                            pole[souradky_pointu[0]][souradky_pointu[1]][1] = 0
+                            cesta = collections.deque()
+                            nacteno += 1
+                            cesta.append(pozice)
+                    else:
+                        pozice = cesta.pop()
+                        if pole[pozice[0] + x * 2 - 1][pozice[1]][1] == pole[pozice[0]][pozice[1]][1] - 1:
+                            cesta.append(pozice)
+                            pole[pozice[0]][pozice[1]][1] = 0
+                            pozice = [pozice[0] + x * 2 - 1, pozice[1]]
+                            nacteno += 1
+                        cesta.append(pozice)
+                    try:
+                        pozice = cesta.pop()
+                        if pozice[0] + x * 2 - 1 == hlava_hada[0] and pozice[1] == hlava_hada[1]:
+                            na_hlave = True
+                            cesta.append(pozice)
+                            break
+                        cesta.append(pozice)
+                    except IndexError:
+                        continue
+            if na_hlave:
+                    break
+        if na_hlave:
+                break
 
     for y in range(vyska):
         for x in range(sirka):
             if pole[y][x][1] != 0:
                 pole[y][x][1] = 0
-    print("cs")
+    cesta.appendleft(souradky_pointu)
 
 
 def on_key_down(key):
@@ -231,7 +310,7 @@ def on_key_down(key):
             if not started:
                 point_spawn()
                 started = True
-            clock.schedule_interval(pohyb, 0.1)
+            clock.schedule_interval(pohyb, 0.01)
             escaped = False
     if not escaped:
         if key == 119 or key == keys.UP:
