@@ -6,8 +6,8 @@ import math
 import collections
 
 pocet_pixelu = 10
-vyska = 10  #50
-sirka = 10  #100
+vyska = 50  #50
+sirka = 100  #100
 WIDTH = pocet_pixelu * sirka
 HEIGHT = pocet_pixelu * (vyska + 2)
 velikost_hada = 5
@@ -27,16 +27,8 @@ souradky_pointu = [0, 0]
 for y in range(vyska):
     radek = []
     for x in range(sirka):
-        if y == 480 or y == 200:
-            if x == 900 or x == 182:
-                had_a_had_hledani = [3, 0]
-                radek.append(had_a_had_hledani)
-            else:
-                had_a_had_hledani = [0, 0]
-                radek.append(had_a_had_hledani)
-        else:
-            had_a_had_hledani = [0, 0]
-            radek.append(had_a_had_hledani)
+        had_a_had_hledani = [0, 0]
+        radek.append(had_a_had_hledani)
     pole.append(radek)
 for had in range(velikost_hada):
     hlava_hada = [round(vyska / 2), round(sirka / 2) + had - 2]
@@ -172,7 +164,7 @@ def hledani_cesty():
     global cesta, nacteno
     breakout = False
     na_hlave = False
-#    doba_trvani = 0
+    doba_trvani = -1
     nacteno = 0
     scitani = 0
     pole_z_wishe = copy.deepcopy(pole)
@@ -182,6 +174,7 @@ def hledani_cesty():
     cesta.append(souradky_pointu)
     if spawned:
         while not breakout:
+            doba_trvani += 1
             pozice = neighbours.popleft()
             for sx, sy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
                 y = pozice[0] + sy
@@ -193,8 +186,8 @@ def hledani_cesty():
                     breakout = True
                 if pole_z_wishe[y][x][1] == 0 and pole_z_wishe[y][x][0] != 1:
                     pole_z_wishe[y][x][1] = pole_z_wishe[pozice[0]][pozice[1]][1] + 1
-                    if velikost_hada - 1 >= pole_z_wishe[y][x][1]:
-                        pole_z_wishe[had_souradnice[pole_z_wishe[y][x][0]][0]][had_souradnice[pole_z_wishe[y][x][0]][1]][0] = 0
+                    if velikost_hada - 1 > pole_z_wishe[pozice[0]][pozice[1]][1]:
+                        pole_z_wishe[had_souradnice[pole_z_wishe[pozice[0]][pozice[1]][1]][0]][had_souradnice[pole_z_wishe[pozice[0]][pozice[1]][1]][1]][0] = 0
                     neighbours.append([y, x])
 
         while not na_hlave:
